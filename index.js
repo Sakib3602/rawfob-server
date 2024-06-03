@@ -33,7 +33,21 @@ async function run() {
 
     
     app.get('/posts', async(req,res)=>{
-      const cursor = await mainPosts.find().toArray();
+
+      const filter = req.query
+
+      console.log(filter)
+      const query = {
+        tag:{$regex : filter.search , $options : 'i'}
+      }
+      const options = {
+        sort: {
+          upvote : filter.sort === "asc" ? 1 : -1 
+        }
+      }
+    
+    
+      const cursor = await mainPosts.find(query,options).toArray();
       // console.log(cursor)
       res.send(cursor)
     })
@@ -44,6 +58,8 @@ async function run() {
       const movie = await mainPosts.findOne(query);
       res.send(movie)
     })
+
+
 
 
 
