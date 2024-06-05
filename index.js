@@ -130,6 +130,8 @@ async function run() {
       const result = await commentsDB.insertOne(doc);
       res.send(result);
     });
+
+
     // user data get from registration
     app.post("/userData", async(req,res)=>{
       const doc = req.body
@@ -142,6 +144,17 @@ async function run() {
       }
       console.log(doc)
       const result = await userDB.insertOne(doc);
+      res.send(result)
+
+    })
+
+    // find by email
+
+    app.get("/userData/:email" , async(req,res)=> {
+      const doc = req.params.email
+      console.log(doc)
+      const query = {email : doc}
+      const result = await userDB.findOne(query)
       res.send(result)
 
     })
