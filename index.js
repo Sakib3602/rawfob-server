@@ -99,6 +99,12 @@ async function run() {
        res.send(result)
 
     })
+    app.delete("/posts/:id", async(req,res)=>{
+      const dlt = req.params.id
+      const query = {_id : new ObjectId(dlt)}
+      const result = await mainPosts.deleteOne(query);
+      res.send(result)
+    })
 
     // update post
     app.put("/posts/:id", async (req, res) => {
