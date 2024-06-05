@@ -29,6 +29,8 @@ async function run() {
     const commentsDB = client.db("lastAssingment").collection("comment");
     const userDB = client.db("lastAssingment").collection("userData");
 
+
+    // main post works
     app.get("/posts", async (req, res) => {
       const filter = req.query;
 
@@ -77,6 +79,14 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const movie = await mainPosts.findOne(query);
+
+      res.send(movie);
+    });
+    app.get("/postss/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email : email };
+      console.log(email)
+      const movie = await mainPosts.find(query).toArray();
 
       res.send(movie);
     });
