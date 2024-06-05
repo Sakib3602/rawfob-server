@@ -27,6 +27,7 @@ async function run() {
 
     const mainPosts = client.db("lastAssingment").collection("post");
     const commentsDB = client.db("lastAssingment").collection("comment");
+    const userDB = client.db("lastAssingment").collection("userData");
 
     app.get("/posts", async (req, res) => {
       const filter = req.query;
@@ -44,25 +45,28 @@ async function run() {
         },
       };
 
+
       const sortOrder = filter.sort === "asc" ? 1 : -1;
       // aggregate
+     
+     const agg = await mainPosts.aggregate([
+      {
+      
+          $match: query
+      
 
-      const agg = await mainPosts
-        .aggregate([
-          {
-            $match: query,
-          },
+      },
+     
 
-          {
-            $addFields: {
-              popularity: { $subtract: ["$upvote", "$downvote"] },
-            },
-          },
-          {
-            $sort: { popularity: sortOrder },
-          },
-        ])
-        .toArray();
+        {
+        $addFields: {
+        popularity: { $subtract: ['$upvote', '$downvote'] }
+        }
+        },
+        {
+          $sort: { popularity: sortOrder }
+      }
+        ]).toArray()
 
       // const cursor = await mainPosts.find(query, options).toArray();
       // res.send({agg,cursor})
@@ -77,33 +81,41 @@ async function run() {
       res.send(movie);
     });
 
-    app.post("/posts", async (req, res) => {
-      const data = req.body;
-      console.log(data);
-    });
+    app.post("/posts", async(req,res)=> {
+      const data = req.body
+      console.log(data)
+
+    })
 
     // update post
     app.put("/posts/:id", async (req, res) => {
       const postId = req.params.id;
-      const doc = req.query;
-      console.log(doc);
+      const doc = req.query
+      console.log(doc)
+   
 
       const update = {};
       if (doc.vote === "true") {
         update.$inc = { upvote: 1 };
       } else {
         update.$inc = { downvote: 1 };
-      }
+      } 
 
+
+     
       const updatedPost = await mainPosts.findOneAndUpdate(
         { _id: new ObjectId(postId) },
         update,
         { new: true }
       );
 
-      // subtraction
 
+      // subtraction 
+      
+        
       // subtraction end
+     
+    
 
       res.send(updatedPost);
     });
@@ -118,6 +130,38 @@ async function run() {
       const result = await commentsDB.insertOne(doc);
       res.send(result);
     });
+    // user data get from registration
+    app.post("/userData", async(req,res)=>{
+      const doc = req.body
+      console.log(doc.email)
+
+      const query = {email : doc.email}
+      const isThere = await userDB.findOne(query)
+      if(isThere){
+        return res.send({massege : 'Sorry All ready there'})
+      }
+      console.log(doc)
+      const result = await userDB.insertOne(doc);
+      res.send(result)
+
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // -----------------------------------------------------------------------------------------
 
     await client.db("admin").command({ ping: 1 });
     console.log(
