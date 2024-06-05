@@ -85,6 +85,9 @@ async function run() {
       const data = req.body
       console.log(data)
 
+       const result = await mainPosts.insertOne(data);
+       res.send(result)
+
     })
 
     // update post
