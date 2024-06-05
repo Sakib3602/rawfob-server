@@ -40,13 +40,33 @@ async function run() {
       // for sort
       const options = {
         sort: {
-          upvote: filter.sort === "asc" ? 1 : -1,
+          popularity: filter.sort === "asc" ? 1 : -1,
         },
       };
 
-      const cursor = await mainPosts.find(query, options).toArray();
-      // console.log(cursor)
-      res.send(cursor);
+      const sortOrder = filter.sort === "asc" ? 1 : -1;
+      // aggregate
+
+      const agg = await mainPosts
+        .aggregate([
+          {
+            $match: query,
+          },
+
+          {
+            $addFields: {
+              popularity: { $subtract: ["$upvote", "$downvote"] },
+            },
+          },
+          {
+            $sort: { popularity: sortOrder },
+          },
+        ])
+        .toArray();
+
+      // const cursor = await mainPosts.find(query, options).toArray();
+      // res.send({agg,cursor})
+      res.send(agg);
     });
 
     app.get("/posts/:id", async (req, res) => {
@@ -57,30 +77,33 @@ async function run() {
       res.send(movie);
     });
 
+    app.post("/posts", async (req, res) => {
+      const data = req.body;
+      console.log(data);
+    });
+
     // update post
     app.put("/posts/:id", async (req, res) => {
       const postId = req.params.id;
-      const doc = req.query
-      console.log(doc)
-   
+      const doc = req.query;
+      console.log(doc);
 
       const update = {};
       if (doc.vote === "true") {
         update.$inc = { upvote: 1 };
       } else {
         update.$inc = { downvote: 1 };
-      } 
-      
+      }
 
-     
       const updatedPost = await mainPosts.findOneAndUpdate(
         { _id: new ObjectId(postId) },
         update,
         { new: true }
       );
 
-     
-      // console.log(updatedPost);
+      // subtraction
+
+      // subtraction end
 
       res.send(updatedPost);
     });
