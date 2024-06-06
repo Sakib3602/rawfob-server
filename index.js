@@ -149,6 +149,15 @@ async function run() {
       const result = await commentsDB.insertOne(doc);
       res.send(result);
     });
+    app.get('/comments/:title', async(req,res)=>{
+      const tit = req.params.title
+      console.log(tit)
+      const query = { title : tit };
+      console.log(query)
+
+      const cursor = await commentsDB.find(query).toArray();
+      res.send(cursor)
+    })
 
 
     // user data get from registration
