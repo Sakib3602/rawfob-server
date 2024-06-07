@@ -145,13 +145,13 @@ async function run() {
     // comment post api
     app.post("/comments", async (req, res) => {
       const doc = req.body;
-      console.log(doc);
+      // console.log(doc);
       const result = await commentsDB.insertOne(doc);
       res.send(result);
     });
     app.get('/comments/:title', async(req,res)=>{
       const tit = req.params.title
-      console.log(tit)
+      // console.log(tit)
       const query = { title : tit };
       console.log(query)
 
@@ -186,6 +186,24 @@ async function run() {
       res.send(result)
 
     })
+
+
+
+
+    // dashbord
+    // admin stats
+
+    app.get("/admin-stats", async(req,res)=>{
+      const totalUsers = await userDB.estimatedDocumentCount()
+      const totalPosts = await mainPosts.estimatedDocumentCount()
+      const totalComments = await commentsDB.estimatedDocumentCount()
+       
+      res.send({totalUsers,totalPosts,totalComments})
+    })
+
+
+
+
 
 
 
