@@ -28,6 +28,7 @@ async function run() {
     const mainPosts = client.db("lastAssingment").collection("post");
     const commentsDB = client.db("lastAssingment").collection("comment");
     const userDB = client.db("lastAssingment").collection("userData");
+    const announceDB = client.db("lastAssingment").collection("announce");
 
 
     // main post works
@@ -197,8 +198,20 @@ async function run() {
       const totalUsers = await userDB.estimatedDocumentCount()
       const totalPosts = await mainPosts.estimatedDocumentCount()
       const totalComments = await commentsDB.estimatedDocumentCount()
+      const totalAnouncement = await announceDB.estimatedDocumentCount()
        
-      res.send({totalUsers,totalPosts,totalComments})
+      res.send({totalUsers,totalPosts,totalComments,totalAnouncement})
+    })
+
+    app.post("/announcement" , async(req,res)=>{
+      const doc = req.body;
+      const result = await  announceDB.insertOne(doc)
+      res.send(result)
+    })
+
+    app.get("/annData", async(req,res)=>{
+      const result = await announceDB.find().toArray();
+      res.send(result)
     })
 
 
