@@ -187,7 +187,7 @@ async function run() {
       if (isThere) {
         return res.send({ massege: "Sorry All ready there" });
       }
-      console.log(doc);
+      // console.log(doc);
       const result = await userDB.insertOne(doc);
       res.send(result);
     });
@@ -196,7 +196,7 @@ async function run() {
 
     app.get("/userData/:email", async (req, res) => {
       const doc = req.params.email;
-      console.log(doc);
+      // console.log(doc);
       const query = { email: doc };
       const result = await userDB.findOne(query);
       res.send(result);
@@ -231,7 +231,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/deleteAnn/:id", async (req, res) => {
+    app.delete("/deleteAnn/:id",varifyToken, async (req, res) => {
       const id = req.params.id;
       console.log(id, "idddddd");
 
@@ -245,6 +245,21 @@ async function run() {
      
       const result = await userDB.find().toArray();
       res.send(result)
+    })
+
+    app.patch("/allUserData/:id",varifyToken, async(req,res)=>{
+      const id = req.params.id
+      const query = { _id : new ObjectId(id)}
+      const options = { upsert: true };
+
+    const updateDoc = {
+      $set: {
+        role: "admin"
+      },
+    };
+    
+    const result = await userDB.updateOne(query, updateDoc, options);
+    res.send(result)
     })
 
 
