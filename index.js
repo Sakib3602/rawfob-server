@@ -31,6 +31,25 @@ async function run() {
     const userDB = client.db("lastAssingment").collection("userData");
     const announceDB = client.db("lastAssingment").collection("announce");
 
+    // midlewire
+    const varifyToken = (req,res,next)=>{
+      // console.log(req.headers,"Inside")
+      if(!req.headers.authorization){
+        res.status(401).send({massage : "sorry !"})
+      }
+      const token = req.headers.authorization.split(' ')[1]
+      console.log(token)
+      
+      jwt.verify(token,process.env.JWT_SEC, (err,decoded)=>{
+        if(err){
+        res.status(401).send({massage : "sorry !"})
+        }
+        req.decoded
+      next()
+      })
+    }
+    // midlewire
+
     // main post works
     app.get("/posts", async (req, res) => {
       const filter = req.query;
@@ -220,6 +239,13 @@ async function run() {
       const result = await announceDB.deleteOne(query);
       res.send(result);
     });
+
+    // all user
+    app.get("/allUserData", varifyToken,async(req,res)=>{
+     
+      const result = await userDB.find().toArray();
+      res.send(result)
+    })
 
 
     // jwt
