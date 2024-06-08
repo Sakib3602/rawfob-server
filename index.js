@@ -6,6 +6,7 @@ const port = 9000;
 app.use(cors());
 app.use(express.json());
 require("dotenv").config();
+const jwt = require('jsonwebtoken');
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.b5jufhp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -142,6 +143,11 @@ async function run() {
       const result = await commentsDB.insertOne(doc);
       res.send(result);
     });
+    // app.update("/comments", async (req, res) => {
+     
+    //   console.log("lol")
+      
+    // });
     app.get("/comments/:title", async (req, res) => {
       const tit = req.params.title;
       // console.log(tit)
@@ -214,6 +220,39 @@ async function run() {
       const result = await announceDB.deleteOne(query);
       res.send(result);
     });
+
+
+    // jwt
+    app.post('/jwt', async(req,res)=>{
+      const user = req.body
+      const token = jwt.sign({
+       user,
+      }, process.env.JWT_SEC, { expiresIn: '1h' });
+
+      res.send({token})
+    })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // -----------------------------------------------------------------------------------------
 
