@@ -6,7 +6,7 @@ const port = 9000;
 app.use(cors());
 app.use(express.json());
 require("dotenv").config();
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.b5jufhp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -32,22 +32,22 @@ async function run() {
     const announceDB = client.db("lastAssingment").collection("announce");
 
     // midlewire
-    const varifyToken = (req,res,next)=>{
+    const varifyToken = (req, res, next) => {
       // console.log(req.headers,"Inside")
-      if(!req.headers.authorization){
-        res.status(401).send({massage : "sorry !"})
+      if (!req.headers.authorization) {
+        res.status(401).send({ massage: "sorry !" });
       }
-      const token = req.headers.authorization.split(' ')[1]
-      console.log(token)
-      
-      jwt.verify(token,process.env.JWT_SEC, (err,decoded)=>{
-        if(err){
-        res.status(401).send({massage : "sorry !"})
+      const token = req.headers.authorization.split(" ")[1];
+      console.log(token);
+
+      jwt.verify(token, process.env.JWT_SEC, (err, decoded) => {
+        if (err) {
+          res.status(401).send({ massage: "sorry !" });
         }
-        req.decoded
-      next()
-      })
-    }
+        req.decoded;
+        next();
+      });
+    };
     // midlewire
 
     // main post works
@@ -163,9 +163,9 @@ async function run() {
       res.send(result);
     });
     // app.update("/comments", async (req, res) => {
-     
+
     //   console.log("lol")
-      
+
     // });
     app.get("/comments/:title", async (req, res) => {
       const tit = req.params.title;
@@ -231,7 +231,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/deleteAnn/:id",varifyToken, async (req, res) => {
+    app.delete("/deleteAnn/:id", varifyToken, async (req, res) => {
       const id = req.params.id;
       console.log(id, "idddddd");
 
@@ -241,41 +241,95 @@ async function run() {
     });
 
     // all user
-    app.get("/allUserData", varifyToken,async(req,res)=>{
-     
+    app.get("/allUserData", varifyToken, async (req, res) => {
       const result = await userDB.find().toArray();
+      res.send(result);
+    });
+
+    app.patch("/allUserData/:id", varifyToken, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+
+      const result = await userDB.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
+
+    // table row update
+    app.patch("/commentsFeedback/:id", async (req, res) => {
+      const body = req.body;
+      const id = req.params.id;
+      console.log(body, id);
+
+      const filter = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $push: {
+          report: body.opValue,
+        },
+      };
+
+      const result = await commentsDB.updateOne(filter, updateDoc);
+      console.log(result);
+    });
+
+    // report
+    app.get("/allreport", async(req,res)=>{
+      const result = await commentsDB.find().toArray()
       res.send(result)
     })
 
-    app.patch("/allUserData/:id",varifyToken, async(req,res)=>{
-      const id = req.params.id
-      const query = { _id : new ObjectId(id)}
-      const options = { upsert: true };
+    app.delete("/deleteCmt/:id", async(req,res)=>{
+      const doc = req.params.id
+      const query = { _id : new ObjectId(doc)}
 
-    const updateDoc = {
-      $set: {
-        role: "admin"
-      },
-    };
-    
-    const result = await userDB.updateOne(query, updateDoc, options);
-    res.send(result)
+      const result = await commentsDB.deleteOne(query)
+      res.send(result)
     })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     // jwt
-    app.post('/jwt', async(req,res)=>{
-      const user = req.body
-      const token = jwt.sign({
-       user,
-      }, process.env.JWT_SEC, { expiresIn: '1h' });
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(
+        {
+          user,
+        },
+        process.env.JWT_SEC,
+        { expiresIn: "1h" }
+      );
 
-      res.send({token})
-    })
-
-
-
-
+      res.send({ token });
+    });
 
 
 
