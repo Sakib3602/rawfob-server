@@ -1,7 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const app = express();
-const port = 9000;
+const port = process.env.PORT || 9000;
+const stripe = require('stripe')('sk_test_51PLpbn17Gzb8sheAvTqzH2cxmVxH4XEjuNUeHpgtv9jPg2446VYSor5YMj1hotASPBrfkC4ZjEYLFol4JGOvGEBP00gMR43EuS');
 
 app.use(cors());
 app.use(express.json());
@@ -294,6 +295,32 @@ async function run() {
     })
 
 
+
+
+
+
+    // stripe
+
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      console.log(amount)
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: [
+          "card",
+    
+        ]
+
+      
+      });
+      console.log(paymentIntent.client_secret)
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      });
+      
+    })
 
 
 
