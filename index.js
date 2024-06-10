@@ -72,14 +72,16 @@ async function run() {
       const agg = await mainPosts
         .aggregate([
           {
+            $match: query,
+          },
+          {
             $skip: page * size,
           },
           {
             $limit: size,
           },
-          {
-            $match: query,
-          },
+         
+          
 
           {
             $addFields: {
